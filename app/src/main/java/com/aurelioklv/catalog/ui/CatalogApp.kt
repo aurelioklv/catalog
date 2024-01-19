@@ -14,14 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.ui.home.HomeScreen
 import com.aurelioklv.catalog.ui.home.HomeViewModel
 
 @Composable
 fun CatalogApp() {
-    val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    val homeViewModel = hiltViewModel<HomeViewModel>()
 
     Scaffold(
         topBar = {

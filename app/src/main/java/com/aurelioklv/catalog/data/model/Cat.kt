@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Cat(
     val breeds: List<Breed>? = null,
+    val categories: List<Category>? = null,
     val id: String,
 
     @SerialName("url")

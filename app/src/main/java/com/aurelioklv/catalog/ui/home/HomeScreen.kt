@@ -87,7 +87,11 @@ fun CatCard(cat: Cat, modifier: Modifier = Modifier) {
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = modifier
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        val breed = cat.breeds
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
             AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,12 +104,26 @@ fun CatCard(cat: Cat, modifier: Modifier = Modifier) {
                 placeholder = painterResource(R.drawable.walking_cat),
                 error = painterResource(R.drawable.offline)
             )
-            Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = cat.id,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = cat.id,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = if (!breed.isNullOrEmpty()) breed.first().name else "",
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
                 Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -175,7 +193,8 @@ fun CatCardPreview() {
         id = "qaZwsX23",
         imageUrl = "",
         imageWidth = 800,
-        imageHeight = 600
+        imageHeight = 600,
+        breeds = emptyList()
     )
     CatCard(cat = mockData, modifier = Modifier.fillMaxWidth())
 }

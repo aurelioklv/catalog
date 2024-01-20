@@ -45,9 +45,3 @@ data class Breed(
     val hypoallergenic: Int,
     @SerialName("reference_image_id") val referenceImageId: String? = null
 )
-
-@Serializable
-data class Weight(
-    val imperial: String,
-    val metric: String
-)

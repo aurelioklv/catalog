@@ -1,7 +1,6 @@
 package com.aurelioklv.catalog.ui.home
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,12 +9,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -24,33 +21,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.data.model.Cat
+import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
 
 @Composable
 fun HomeScreen(
-    uiState: HomeUiState,
-    retryAction: () -> Unit,
+    state: HomeScreenState,
+    retryAction: (HomeScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    when (uiState) {
-        is HomeUiState.Loading -> LoadingScreen()
-        is HomeUiState.Error -> ErrorScreen(retryAction = retryAction)
-        is HomeUiState.Success -> {
+    when {
+        state.isLoading -> LoadingScreen()
+        state.isError -> ErrorScreen(retryAction = { retryAction(HomeScreenEvent.RefreshImage) })
+        else -> {
             CatPhotoList(
-                cats = uiState.cats,
+                cats = state.cats,
                 contentPadding = contentPadding,
                 modifier = modifier.padding(
                     start = dimensionResource(R.dimen.padding_medium),
@@ -81,6 +81,7 @@ fun CatPhotoList(
 
 @Composable
 fun CatCard(cat: Cat, modifier: Modifier = Modifier) {
+    val clipboardManager: ClipboardManager = LocalClipboardManager.current
     Card(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
@@ -113,10 +114,12 @@ fun CatCard(cat: Cat, modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = cat.id,
+                    val annotatedCatId = AnnotatedString(cat.id)
+                    ClickableText(
+                        text = annotatedCatId,
                         modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
                         style = MaterialTheme.typography.titleMedium,
+                        onClick = { clipboardManager.setText(annotatedCatId) }
                     )
                     Text(
                         text = if (!breed.isNullOrEmpty()) breed.first().name else "",
@@ -156,36 +159,6 @@ fun LoadingScreen() {
     }
 }
 
-@Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(R.drawable.offline),
-            contentDescription = stringResource(R.string.error),
-            modifier = Modifier.size(80.dp),
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.error)
-        )
-        Text(
-            text = stringResource(R.string.you_are_offline), modifier = Modifier.padding(
-                dimensionResource(R.dimen.padding_small)
-            )
-        )
-        Button(
-            onClick = retryAction,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-        ) {
-            Text(
-                text = stringResource(R.string.retry),
-                color = MaterialTheme.colorScheme.onErrorContainer
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun CatCardPreview() {
@@ -196,7 +169,10 @@ fun CatCardPreview() {
         imageHeight = 600,
         breeds = emptyList()
     )
-    CatCard(cat = mockData, modifier = Modifier.fillMaxWidth())
+    CatCard(
+        cat = mockData,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Preview(showBackground = true)

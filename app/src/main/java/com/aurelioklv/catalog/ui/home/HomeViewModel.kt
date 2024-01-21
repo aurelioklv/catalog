@@ -1,12 +1,13 @@
 package com.aurelioklv.catalog.ui.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurelioklv.catalog.domain.repository.CatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -14,21 +15,57 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val catRepository: CatRepository) : ViewModel() {
-    var uiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
-        private set
+    private val _state = MutableStateFlow(HomeScreenState())
+    val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), HomeScreenState())
 
     init {
-        getCats()
+        _state.update {
+            it.copy(numberOfCat = 10)
+        }
+        onEvent(HomeScreenEvent.RefreshImage)
     }
 
-    fun getCats() {
+    fun onEvent(event: HomeScreenEvent) {
+        when (event) {
+            HomeScreenEvent.HideCatDetails -> {
+                _state.update {
+                    it.copy(isShowingDetails = false)
+                }
+            }
+
+            HomeScreenEvent.RefreshImage -> {
+                getCats(_state.value.numberOfCat, _state.value.hasBreeds)
+            }
+
+            is HomeScreenEvent.SaveCatImage -> TODO()
+            is HomeScreenEvent.ShowCatDetails -> {
+                _state.update {
+                    it.copy(isShowingDetails = true, currentCat = event.cat)
+                }
+            }
+        }
+    }
+
+    fun getCats(limit: Int, hasBreeds: Int) {
         viewModelScope.launch {
-            uiState = try {
-                HomeUiState.Success(catRepository.getCats())
+            var isError = false
+            val cats = try {
+                catRepository.getCats(limit, hasBreeds)
             } catch (e: IOException) {
-                HomeUiState.Error
+                e.printStackTrace()
+                isError = true
+                emptyList()
             } catch (e: HttpException) {
-                HomeUiState.Error
+                e.printStackTrace()
+                isError = true
+                emptyList()
+            }
+            _state.update {
+                it.copy(
+                    cats = cats,
+                    isError = isError,
+                    isLoading = false
+                )
             }
         }
     }

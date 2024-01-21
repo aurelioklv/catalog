@@ -21,22 +21,22 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.data.model.Breed
-import com.aurelioklv.catalog.ui.home.ErrorScreen
+import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.home.LoadingScreen
 
 @Composable
 fun BreedScreen(
-    uiState: BreedUiState,
-    retryAction: () -> Unit,
+    state: BreedScreenState,
+    retryAction: (BreedScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    when (uiState) {
-        is BreedUiState.Loading -> LoadingScreen()
-        is BreedUiState.Error -> ErrorScreen(retryAction = retryAction)
-        is BreedUiState.Success -> {
+    when {
+        state.isLoading -> LoadingScreen()
+        state.isError -> ErrorScreen(retryAction = { retryAction(BreedScreenEvent.GetBreeds) })
+        else -> {
             BreedList(
-                breeds = uiState.breeds,
+                breeds = state.breeds,
                 contentPadding = contentPadding,
                 modifier = modifier.padding(
                     start = dimensionResource(R.dimen.padding_medium),

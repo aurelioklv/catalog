@@ -43,6 +43,18 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             BreedScreenEvent.GetBreeds -> {
                 getBreeds()
             }
+
+            is BreedScreenEvent.GetBreed -> {
+                _state.update {
+                    it.copy(
+                        currentBreed = null,
+                        currentBreedCatRef = null
+                    )
+                }
+                viewModelScope.launch {
+                    getBreedById(event.id)
+                }
+            }
         }
     }
 
@@ -63,6 +75,42 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             _state.update {
                 it.copy(
                     breeds = breeds,
+                    isError = isError,
+                    isLoading = false
+                )
+            }
+        }
+    }
+
+    fun getBreedById(id: String) {
+        viewModelScope.launch {
+            var isError = false
+            var breed = try {
+                catRepository.getBreedById(id)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                isError = true
+                null
+            } catch (e: HttpException) {
+                e.printStackTrace()
+                isError = true
+                null
+            }
+            var cat = try {
+                breed?.referenceImageId?.let { catRepository.getCatById(it) }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                isError = true
+                null
+            } catch (e: HttpException) {
+                e.printStackTrace()
+                isError = true
+                null
+            }
+            _state.update {
+                it.copy(
+                    currentBreed = breed,
+                    currentBreedCatRef = cat,
                     isError = isError,
                     isLoading = false
                 )

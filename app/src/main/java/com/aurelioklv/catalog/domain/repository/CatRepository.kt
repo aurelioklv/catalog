@@ -7,5 +7,7 @@ import com.aurelioklv.catalog.data.model.Cat
 
 interface CatRepository {
     suspend fun getCats(limit: Int = DEFAULT_LIMIT, hasBreeds: Int = DEFAULT_HAS_BREEDS): List<Cat>
+    suspend fun getCatById(id: String): Cat
     suspend fun getBreeds(): List<Breed>
+    suspend fun getBreedById(id: String): Breed
 }

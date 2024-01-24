@@ -13,7 +13,15 @@ class CatRepositoryImpl @Inject constructor(
         return catApi.getCats(limit = limit, hasBreeds = hasBreeds)
     }
 
+    override suspend fun getCatById(id: String): Cat {
+        return catApi.getCatById(id)
+    }
+
     override suspend fun getBreeds(): List<Breed> {
         return catApi.getBreeds()
+    }
+
+    override suspend fun getBreedById(id: String): Breed {
+        return catApi.getBreedById(id)
     }
 }

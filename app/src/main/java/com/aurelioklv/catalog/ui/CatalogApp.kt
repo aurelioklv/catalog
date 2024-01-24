@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.aurelioklv.catalog.ui.breed.BreedDetails
 import com.aurelioklv.catalog.ui.breed.BreedScreen
 import com.aurelioklv.catalog.ui.breed.BreedViewModel
 import com.aurelioklv.catalog.ui.common.CatalogBottomNavigation
@@ -18,6 +19,7 @@ import com.aurelioklv.catalog.ui.common.CatalogTopAppBar
 import com.aurelioklv.catalog.ui.common.EmptyScreen
 import com.aurelioklv.catalog.ui.home.HomeScreen
 import com.aurelioklv.catalog.ui.home.HomeViewModel
+import com.aurelioklv.catalog.ui.navigation.Screen
 
 @Composable
 fun CatalogApp() {
@@ -44,8 +46,8 @@ fun CatalogApp() {
             )
         }
     ) { padding ->
-        NavHost(navController = navController, startDestination = "home") {
-            composable(route = "home") {
+        NavHost(navController = navController, startDestination = Screen.Home.route) {
+            composable(route = Screen.Home.route) {
                 HomeScreen(
                     state = homeScreenState,
                     retryAction = homeViewModel::onEvent,
@@ -53,16 +55,26 @@ fun CatalogApp() {
                     contentPadding = padding
                 )
             }
-            composable(route = "breed") {
+            composable(route = Screen.Breeds.route) {
                 BreedScreen(
                     state = breedScreenState,
-                    retryAction = breedViewModel::onEvent,
+                    onEvent = breedViewModel::onEvent,
+                    navController = navController,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = padding
                 )
             }
-            composable(route = "settings") {
+            composable(route = Screen.Settings.route) {
                 EmptyScreen(title = "Settings Screen")
+            }
+            composable(
+                route = "${Screen.BreedDetails.route}",
+            ) {
+                BreedDetails(
+                    breed = breedScreenState.currentBreed,
+                    catRef = breedScreenState.currentBreedCatRef,
+                    contentPadding = padding
+                )
             }
         }
     }

@@ -7,6 +7,7 @@ import com.aurelioklv.catalog.data.model.Breed
 import com.aurelioklv.catalog.data.model.Cat
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface CatApi {
@@ -17,6 +18,12 @@ interface CatApi {
         @Query("has_breeds") hasBreeds: Int = DEFAULT_HAS_BREEDS
     ): List<Cat>
 
+    @GET("images/{catId}")
+    suspend fun getCatById(@Path("catId") catId: String): Cat
+
     @GET("breeds")
     suspend fun getBreeds(): List<Breed>
+
+    @GET("breeds/{breedId}")
+    suspend fun getBreedById(@Path("breedId") breedId: String): Breed
 }

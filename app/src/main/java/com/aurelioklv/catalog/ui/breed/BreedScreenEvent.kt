@@ -4,6 +4,7 @@ import com.aurelioklv.catalog.data.model.Breed
 
 sealed interface BreedScreenEvent {
     data object GetBreeds : BreedScreenEvent
+    data class GetBreed(val id: String) : BreedScreenEvent
     data class ShowBreedDetails(val breed: Breed) : BreedScreenEvent
     data object HideBreedDetails : BreedScreenEvent
 }

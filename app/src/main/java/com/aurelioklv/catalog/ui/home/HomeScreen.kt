@@ -48,6 +48,7 @@ fun HomeScreen(
     when {
         state.isLoading -> LoadingScreen()
         state.isError -> ErrorScreen(retryAction = { retryAction(HomeScreenEvent.RefreshImage) })
+
         else -> {
             CatPhotoList(
                 cats = state.cats,
@@ -55,7 +56,6 @@ fun HomeScreen(
                 modifier = modifier.padding(
                     start = dimensionResource(R.dimen.padding_medium),
                     end = dimensionResource(R.dimen.padding_medium),
-                    top = dimensionResource(R.dimen.padding_medium)
                 )
             )
         }

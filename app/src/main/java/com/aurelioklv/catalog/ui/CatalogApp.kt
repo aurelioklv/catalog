@@ -41,6 +41,7 @@ fun CatalogApp(windowSizeClass: WindowSizeClass) {
             NavHost(navController = navController, startDestination = Screen.Home.route) {
                 composable(route = Screen.Home.route) {
                     HomeScreen(
+                        isExpandedWindowSize = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
                         state = homeScreenState,
                         retryAction = homeViewModel::onEvent,
                         modifier = Modifier.fillMaxSize(),

@@ -1,34 +1,33 @@
 package com.aurelioklv.catalog.ui.home
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -36,6 +35,7 @@ import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
+import com.aurelioklv.catalog.ui.common.getColorFromHashCode
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
 
 @Composable
@@ -43,6 +43,7 @@ fun HomeScreen(
     state: HomeScreenState,
     retryAction: (HomeScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
+    isExpandedWindowSize: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     when {
@@ -52,6 +53,7 @@ fun HomeScreen(
         else -> {
             CatPhotoList(
                 cats = state.cats,
+                isExpandedWindowSize = isExpandedWindowSize,
                 contentPadding = contentPadding,
                 modifier = modifier.padding(
                     start = dimensionResource(R.dimen.padding_medium),
@@ -65,13 +67,16 @@ fun HomeScreen(
 @Composable
 fun CatPhotoList(
     cats: List<Cat>,
+    isExpandedWindowSize: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    LazyColumn(
-        modifier = modifier,
+    LazyVerticalGrid(
+        columns = if (isExpandedWindowSize) GridCells.Adaptive(200.dp) else GridCells.Fixed(3),
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large))
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
     ) {
         items(items = cats, key = { it.id }) {
             CatCard(cat = it)
@@ -80,71 +85,37 @@ fun CatPhotoList(
 }
 
 @Composable
-fun CatCard(cat: Cat, modifier: Modifier = Modifier) {
-    val clipboardManager: ClipboardManager = LocalClipboardManager.current
+fun CatCard(cat: Cat) {
+    val breed = cat.breeds!!.first()
     Card(
-        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(width = 2.dp, color = getColorFromHashCode(breed.hashCode())),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        modifier = modifier
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         val breed = cat.breeds
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AsyncImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(cat.imageUrl)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.walking_cat),
-                error = painterResource(R.drawable.offline)
-            )
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    val annotatedCatId = AnnotatedString(cat.id)
-                    ClickableText(
-                        text = annotatedCatId,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                        style = MaterialTheme.typography.titleMedium,
-                        onClick = { clipboardManager.setText(annotatedCatId) }
-                    )
-                    Text(
-                        text = if (!breed.isNullOrEmpty()) breed.first().name else "",
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-                Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_small))
-                ) {
-                    Text(
-                        text = "Width: ${cat.imageWidth}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = "Height: ${cat.imageHeight}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-        }
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f),
+            model = ImageRequest.Builder(context = LocalContext.current)
+                .data(cat.imageUrl)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.walking_cat),
+            error = painterResource(R.drawable.offline)
+        )
+        Text(
+            text = if (!breed.isNullOrEmpty()) breed.first().name else "",
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 4.dp),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -171,7 +142,6 @@ fun CatCardPreview() {
     )
     CatCard(
         cat = mockData,
-        modifier = Modifier.fillMaxWidth()
     )
 }
 

@@ -1,6 +1,7 @@
 package com.aurelioklv.catalog.ui.breed
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -42,6 +42,7 @@ import com.aurelioklv.catalog.data.model.Breed
 import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.common.RatingBullet
+import com.aurelioklv.catalog.ui.common.getColorFromHashCode
 import com.aurelioklv.catalog.ui.home.LoadingScreen
 import com.aurelioklv.catalog.ui.navigation.Screen
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
@@ -114,6 +115,7 @@ fun BreedCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(width = 2.dp, color = getColorFromHashCode(breed.hashCode())),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = modifier.clickable {
@@ -134,8 +136,7 @@ fun BreedCard(
                 Text(
                     text = breed.id,
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Monospace
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
         }

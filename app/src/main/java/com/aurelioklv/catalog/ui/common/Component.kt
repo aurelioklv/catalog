@@ -209,3 +209,11 @@ fun RatingBullet(
 fun RatingBulletPreview() {
     RatingBullet(3, 5)
 }
+
+fun getColorFromHashCode(hashCode: Int): Color {
+    val alpha = 1f
+    val red = (hashCode and 0xFF0000 shr 16) / 255.0f
+    val green = (hashCode and 0x00FF00 shr 8) / 255.0f
+    val blue = (hashCode and 0x0000FF) / 255.0f
+    return Color(red, green, blue, alpha)
+}

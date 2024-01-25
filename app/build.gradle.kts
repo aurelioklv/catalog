@@ -72,7 +72,7 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
-    implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0-beta02")
+    implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0-rc01")
 
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")

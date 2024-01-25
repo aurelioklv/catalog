@@ -20,6 +20,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,11 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.ui.home.HomeScreenEvent
-import com.aurelioklv.catalog.ui.navigation.bottomNavItems
+import com.aurelioklv.catalog.ui.navigation.menuItems
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,11 +68,11 @@ fun CatalogTopAppBar(
 
 @Composable
 fun CatalogBottomNavigation(
-    navController: NavController,
+    navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?
 ) {
     NavigationBar {
-        bottomNavItems.forEach {
+        menuItems.forEach {
             val isSelected = navBackStackEntry?.destination?.route?.startsWith(it.route) ?: false
             NavigationBarItem(
                 selected = isSelected,
@@ -95,7 +97,45 @@ fun CatalogBottomNavigation(
 }
 
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun CatalogNavigationRail(
+    navController: NavHostController,
+    navBackStackEntry: NavBackStackEntry?,
+    onEvent: (HomeScreenEvent) -> Unit
+) {
+    NavigationRail(
+        header = {
+            IconButton(onClick = { onEvent(HomeScreenEvent.RefreshImage) }) {
+                Icon(Icons.Filled.Refresh, contentDescription = null)
+            }
+        }
+    ) {
+        menuItems.forEach {
+            val isSelected = navBackStackEntry?.destination?.route?.startsWith(it.route) ?: false
+
+            NavigationRailItem(
+                selected = isSelected,
+                onClick = {
+                    navController.navigate(it.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = (if (isSelected) it.selectedIcon else it.unselectedIcon)!!,
+                        contentDescription = stringResource(id = it.resourceId)
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen(retryAction: () -> Unit) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

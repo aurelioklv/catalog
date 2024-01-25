@@ -58,7 +58,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
         }
     }
 
-    fun getBreeds() {
+    private fun getBreeds() {
         viewModelScope.launch {
             var isError = false
             val breeds = try {
@@ -72,6 +72,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
                 isError = true
                 emptyList()
             }
+            getBreedById(breeds.first().id)
             _state.update {
                 it.copy(
                     breeds = breeds,
@@ -82,7 +83,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
         }
     }
 
-    fun getBreedById(id: String) {
+    private fun getBreedById(id: String) {
         viewModelScope.launch {
             var isError = false
             var breed = try {

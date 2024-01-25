@@ -28,7 +28,7 @@ sealed class Screen(
         Screen("settings", R.string.home, Icons.Filled.Settings, Icons.Outlined.Settings)
 }
 
-val bottomNavItems = listOf(
+val menuItems = listOf(
     Screen.Home,
     Screen.Breeds,
     Screen.Settings

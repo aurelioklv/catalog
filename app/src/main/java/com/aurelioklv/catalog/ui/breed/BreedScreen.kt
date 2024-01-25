@@ -1,5 +1,6 @@
 package com.aurelioklv.catalog.ui.breed
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,9 +49,10 @@ import com.aurelioklv.catalog.ui.theme.CatalogTheme
 @Composable
 fun BreedScreen(
     state: BreedScreenState,
-    onEvent: (BreedScreenEvent) -> Unit,
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    isExpandedWindowSize: Boolean = false,
+    onEvent: (BreedScreenEvent) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     when {
@@ -58,16 +60,30 @@ fun BreedScreen(
         state.isError -> ErrorScreen(retryAction = { onEvent(BreedScreenEvent.GetBreeds) })
 
         else -> {
-            BreedList(
-                breeds = state.breeds,
-                navController = navController,
-                onEvent = onEvent,
-                contentPadding = contentPadding,
-                modifier = modifier.padding(
-                    start = dimensionResource(R.dimen.padding_medium),
-                    end = dimensionResource(R.dimen.padding_medium),
+            Log.i("EXPANDED", "isExpanded $isExpandedWindowSize")
+            if (isExpandedWindowSize) {
+                BreedListDetails(
+                    breeds = state.breeds,
+                    breed = state.currentBreed,
+                    catRef = state.currentBreedCatRef,
+                    onItemClicked = {
+                        onEvent(BreedScreenEvent.GetBreed(it))
+                    }
                 )
-            )
+            } else {
+                BreedList(
+                    breeds = state.breeds,
+                    onItemClicked = {
+                        onEvent(BreedScreenEvent.GetBreed(it))
+                        navController.navigate(Screen.BreedDetails.route)
+                    },
+                    contentPadding = contentPadding,
+                    modifier = modifier.padding(
+                        start = dimensionResource(R.dimen.padding_medium),
+                        end = dimensionResource(R.dimen.padding_medium),
+                    )
+                )
+            }
         }
     }
 }
@@ -75,8 +91,7 @@ fun BreedScreen(
 @Composable
 fun BreedList(
     breeds: List<Breed>,
-    navController: NavHostController,
-    onEvent: (BreedScreenEvent) -> Unit,
+    onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
@@ -86,7 +101,7 @@ fun BreedList(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
         items(items = breeds, key = { it.id }) {
-            BreedCard(breed = it, navController = navController, onEvent = onEvent)
+            BreedCard(breed = it, onItemClicked = onItemClicked)
         }
     }
 }
@@ -94,8 +109,7 @@ fun BreedList(
 @Composable
 fun BreedCard(
     breed: Breed,
-    navController: NavHostController,
-    onEvent: (BreedScreenEvent) -> Unit,
+    onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -103,8 +117,7 @@ fun BreedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = modifier.clickable {
-            onEvent(BreedScreenEvent.GetBreed(breed.id))
-            navController.navigate("${Screen.BreedDetails.route}")
+            onItemClicked(breed.id)
         }
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -130,9 +143,14 @@ fun BreedCard(
 }
 
 @Composable
-fun BreedDetails(breed: Breed?, catRef: Cat?, contentPadding: PaddingValues = PaddingValues(0.dp)) {
+fun BreedDetails(
+    breed: Breed?,
+    catRef: Cat?,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(
                 top = contentPadding.calculateTopPadding(),
@@ -209,6 +227,23 @@ fun BreedDetails(breed: Breed?, catRef: Cat?, contentPadding: PaddingValues = Pa
                 Text(text = "No breed")
             }
         }
+    }
+}
+
+@Composable
+fun BreedListDetails(
+    breeds: List<Breed>,
+    breed: Breed?,
+    catRef: Cat?,
+    onItemClicked: (String) -> Unit,
+) {
+    Row(modifier = Modifier.fillMaxSize()) {
+        BreedList(
+            breeds = breeds,
+            onItemClicked = onItemClicked,
+            modifier = Modifier.weight(1f)
+        )
+        BreedDetails(breed = breed, catRef = catRef, modifier = Modifier.weight(1f))
     }
 }
 

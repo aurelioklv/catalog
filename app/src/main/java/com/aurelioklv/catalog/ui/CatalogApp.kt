@@ -43,7 +43,7 @@ fun CatalogApp(windowSizeClass: WindowSizeClass) {
                     HomeScreen(
                         isExpandedWindowSize = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
                         state = homeScreenState,
-                        retryAction = homeViewModel::onEvent,
+                        onEvent = homeViewModel::onEvent,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = innerPadding
                     )

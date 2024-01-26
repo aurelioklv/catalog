@@ -3,7 +3,7 @@ package com.aurelioklv.catalog.ui.home
 import com.aurelioklv.catalog.data.model.Cat
 
 data class HomeScreenState(
-    val numberOfCat: Int = 0,
+    val numberOfCat: Int? = null,
     val hasBreeds: Int = 1,
     val cats: List<Cat> = emptyList(),
     val isShowingDetails: Boolean = false,

@@ -58,8 +58,8 @@ fun CatalogApp(windowSizeClass: WindowSizeClass) {
                         contentPadding = innerPadding
                     )
                 }
-                composable(route = Screen.Settings.route) {
-                    EmptyScreen(title = "Settings Screen")
+                composable(route = Screen.Categories.route) {
+                    EmptyScreen(title = "Categories Screen")
                 }
                 composable(
                     route = Screen.BreedDetails.route,

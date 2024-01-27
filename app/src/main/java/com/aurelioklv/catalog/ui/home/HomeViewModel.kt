@@ -15,11 +15,13 @@ import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.domain.repository.CatRepository
+import com.aurelioklv.catalog.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,16 +34,33 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val application: Application,
     private val imageLoader: ImageLoader,
-    private val catRepository: CatRepository
+    private val catRepository: CatRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeScreenState())
     val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), HomeScreenState())
 
     init {
-        _state.update {
-            it.copy(numberOfCat = 10)
+        viewModelScope.launch {
+            userPreferencesRepository.userPreferences.take(1).collect { userPreferences ->
+                _state.update {
+                    it.copy(
+                        fetchAmount = userPreferences.fetchAmount,
+                        gridColumn = userPreferences.gridColumn,
+                    )
+                }
+                onEvent(HomeScreenEvent.RefreshImage)
+            }
+
+            userPreferencesRepository.userPreferences.collect { userPreferences ->
+                _state.update {
+                    it.copy(
+                        fetchAmount = userPreferences.fetchAmount,
+                        gridColumn = userPreferences.gridColumn,
+                    )
+                }
+            }
         }
-        onEvent(HomeScreenEvent.RefreshImage)
     }
 
     fun onEvent(event: HomeScreenEvent) {
@@ -53,7 +72,7 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeScreenEvent.RefreshImage -> {
-                getCats(limit = _state.value.numberOfCat, hasBreeds = _state.value.hasBreeds)
+                getCats(limit = _state.value.fetchAmount, hasBreeds = _state.value.hasBreeds)
             }
 
             is HomeScreenEvent.SaveCatImage -> {
@@ -159,5 +178,9 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        const val TAG = "HomeViewModel"
     }
 }

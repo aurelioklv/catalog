@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,6 +25,10 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,6 +46,7 @@ import androidx.navigation.NavHostController
 import com.aurelioklv.catalog.R
 import com.aurelioklv.catalog.ui.home.HomeScreenEvent
 import com.aurelioklv.catalog.ui.navigation.menuItems
+import com.aurelioklv.catalog.ui.settings.SettingsDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +54,13 @@ fun CatalogTopAppBar(
     onEvent: (HomeScreenEvent) -> Unit,
     navBackStackEntry: NavBackStackEntry?
 ) {
+    var showSettingsDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (showSettingsDialog) {
+        SettingsDialog(onDismiss = { showSettingsDialog = false })
+    }
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -57,10 +70,11 @@ fun CatalogTopAppBar(
             )
         },
         actions = {
-            if (navBackStackEntry?.destination?.route == "home") {
-                IconButton(onClick = { onEvent(HomeScreenEvent.RefreshImage) }) {
-                    Icon(Icons.Filled.Refresh, contentDescription = null)
-                }
+            IconButton(onClick = { onEvent(HomeScreenEvent.RefreshImage) }) {
+                Icon(Icons.Filled.Refresh, contentDescription = null)
+            }
+            IconButton(onClick = { showSettingsDialog = !showSettingsDialog }) {
+                Icon(Icons.Filled.Settings, contentDescription = null)
             }
         }
     )
@@ -102,8 +116,18 @@ fun CatalogNavigationRail(
     navBackStackEntry: NavBackStackEntry?,
     onEvent: (HomeScreenEvent) -> Unit
 ) {
+    var showSettingsDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (showSettingsDialog) {
+        SettingsDialog(onDismiss = { showSettingsDialog = false })
+    }
     NavigationRail(
         header = {
+            IconButton(onClick = { showSettingsDialog = !showSettingsDialog }) {
+                Icon(Icons.Filled.Settings, contentDescription = null)
+            }
             IconButton(onClick = { onEvent(HomeScreenEvent.RefreshImage) }) {
                 Icon(Icons.Filled.Refresh, contentDescription = null)
             }

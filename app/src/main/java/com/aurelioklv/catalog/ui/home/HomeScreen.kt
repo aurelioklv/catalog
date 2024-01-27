@@ -58,6 +58,7 @@ fun HomeScreen(
         else -> {
             CatPhotoList(
                 cats = state.cats,
+                gridColumn = state.gridColumn,
                 onClick = { onEvent(HomeScreenEvent.SaveCatImage(it)) },
                 isExpandedWindowSize = isExpandedWindowSize,
                 contentPadding = contentPadding,
@@ -73,13 +74,16 @@ fun HomeScreen(
 @Composable
 fun CatPhotoList(
     cats: List<Cat>,
+    gridColumn: Int,
     onClick: (Cat) -> Unit,
     isExpandedWindowSize: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     LazyVerticalGrid(
-        columns = if (isExpandedWindowSize) GridCells.Adaptive(200.dp) else GridCells.Fixed(2),
+        columns = if (isExpandedWindowSize) GridCells.Adaptive(200.dp) else GridCells.Fixed(
+            gridColumn
+        ),
         contentPadding = contentPadding,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -125,7 +129,7 @@ fun CatCard(cat: Cat, onClick: (Cat) -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(start = 8.dp, bottom = 4.dp)
+                    .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
                     .align(Alignment.BottomCenter),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,

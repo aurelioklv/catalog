@@ -24,6 +24,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,25 +36,70 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.aurelioklv.catalog.R
+import com.aurelioklv.catalog.ui.breed.BreedDetailsRoute
+import com.aurelioklv.catalog.ui.breed.BreedScreenRoute
+import com.aurelioklv.catalog.ui.breed.BreedViewModel
 import com.aurelioklv.catalog.ui.home.HomeScreenEvent
+import com.aurelioklv.catalog.ui.home.HomeScreenRoute
+import com.aurelioklv.catalog.ui.home.HomeViewModel
+import com.aurelioklv.catalog.ui.navigation.Screen
 import com.aurelioklv.catalog.ui.navigation.menuItems
 import com.aurelioklv.catalog.ui.settings.SettingsDialog
+import com.aurelioklv.catalog.ui.theme.CatalogTheme
+
+@Composable
+fun CatalogNavHost(
+    windowSizeClass: WindowSizeClass,
+    navController: NavHostController,
+) {
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val breedViewModel: BreedViewModel = hiltViewModel()
+    val isExpandedWidthSize = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+
+    NavHost(navController = navController, startDestination = Screen.Home.route) {
+        composable(route = Screen.Home.route) {
+            HomeScreenRoute(
+                viewModel = homeViewModel,
+                isExpandedWidthSize = isExpandedWidthSize,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        composable(route = Screen.Breeds.route) {
+            BreedScreenRoute(
+                viewModel = breedViewModel,
+                isExpandedWidthSize = isExpandedWidthSize,
+                navController = navController,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        composable(
+            route = Screen.BreedDetails.route,
+        ) {
+            BreedDetailsRoute(viewModel = breedViewModel)
+        }
+        composable(route = Screen.Categories.route) {
+            EmptyScreen(title = stringResource(R.string.categories))
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogTopAppBar(
     onEvent: (HomeScreenEvent) -> Unit,
-    navBackStackEntry: NavBackStackEntry?
 ) {
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
@@ -172,9 +219,7 @@ fun ErrorScreen(retryAction: () -> Unit) {
             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.error)
         )
         Text(
-            text = stringResource(R.string.you_are_offline), modifier = Modifier.padding(
-                dimensionResource(R.dimen.padding_small)
-            )
+            text = stringResource(R.string.you_are_offline), modifier = Modifier.padding(8.dp)
         )
         Button(
             onClick = retryAction,
@@ -189,13 +234,14 @@ fun ErrorScreen(retryAction: () -> Unit) {
 }
 
 @Composable
-fun EmptyScreen(title: String) {
+fun EmptyScreen(title: String = "Feature") {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = title)
+        Text(text = title, style = MaterialTheme.typography.displaySmall)
+        Text(text = "🚧 Under construction")
     }
 }
 
@@ -234,10 +280,46 @@ fun RatingBulletPreview() {
     RatingBullet(3, 5)
 }
 
-fun getColorFromHashCode(hashCode: Int): Color {
-    val alpha = 1f
-    val red = (hashCode and 0xFF0000 shr 16) / 255.0f
-    val green = (hashCode and 0x00FF00 shr 8) / 255.0f
-    val blue = (hashCode and 0x0000FF) / 255.0f
-    return Color(red, green, blue, alpha)
+@Preview(apiLevel = 33)
+@Composable
+fun TopAppBarPreview() {
+    CatalogTheme {
+        CatalogTopAppBar(onEvent = {})
+    }
+}
+
+@Preview(apiLevel = 33)
+@Composable
+fun BottomBarPreview() {
+    CatalogTheme {
+        CatalogBottomNavigation(navController = rememberNavController(), navBackStackEntry = null)
+    }
+}
+
+@Preview(apiLevel = 33)
+@Composable
+fun NavigationRailPreview() {
+    CatalogTheme {
+        CatalogNavigationRail(
+            onEvent = {},
+            navController = rememberNavController(),
+            navBackStackEntry = null
+        )
+    }
+}
+
+@Preview(showBackground = true, apiLevel = 33)
+@Composable
+fun ErrorScreenPreview() {
+    CatalogTheme {
+        ErrorScreen(retryAction = {})
+    }
+}
+
+@Preview(showBackground = true, apiLevel = 33)
+@Composable
+fun EmptyScreenPreview() {
+    CatalogTheme {
+        EmptyScreen()
+    }
 }

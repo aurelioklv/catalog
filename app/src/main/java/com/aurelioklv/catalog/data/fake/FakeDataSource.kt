@@ -1,10 +1,11 @@
 package com.aurelioklv.catalog.data.fake
 
 import com.aurelioklv.catalog.data.model.Breed
+import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.data.model.Weight
 
-val fakeBreeds: List<Breed> = listOf(
-    Breed(
+object FakeDataSource {
+    val breed = Breed(
         weight = Weight(
             imperial = "7  -  10",
             metric = "3 - 5"
@@ -46,4 +47,14 @@ val fakeBreeds: List<Breed> = listOf(
         hypoallergenic = 0,
         referenceImageId = "0XYvRd7oD"
     )
-)
+
+    val cat = Cat(
+        breeds = listOf(breed),
+        id = "0XYvRd7oD",
+        imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
+        imageWidth = 1204,
+        imageHeight = 1445
+    )
+
+    val breeds: List<Breed> = MutableList(5) { breed.copy(id = "${breed.id}-$it") }
+}

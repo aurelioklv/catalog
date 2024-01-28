@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,23 +20,26 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
-import com.aurelioklv.catalog.data.fake.fakeBreeds
+import com.aurelioklv.catalog.data.fake.FakeDataSource.breeds
+import com.aurelioklv.catalog.data.fake.FakeDataSource.cat
 import com.aurelioklv.catalog.data.model.Breed
 import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
@@ -48,41 +50,34 @@ import com.aurelioklv.catalog.ui.navigation.Screen
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
 
 @Composable
-fun BreedScreen(
-    state: BreedScreenState,
+fun BreedScreenRoute(
+    viewModel: BreedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    isExpandedWindowSize: Boolean = false,
-    onEvent: (BreedScreenEvent) -> Unit,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    isExpandedWidthSize: Boolean = false,
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val onEvent = viewModel::onEvent
+
     when {
         state.isLoading -> LoadingScreen()
         state.isError -> ErrorScreen(retryAction = { onEvent(BreedScreenEvent.GetBreeds) })
 
         else -> {
-            Log.i("EXPANDED", "isExpanded $isExpandedWindowSize")
-            if (isExpandedWindowSize) {
+            Log.i("EXPANDED", "isExpanded $isExpandedWidthSize")
+            if (isExpandedWidthSize) {
                 BreedListDetails(
-                    breeds = state.breeds,
-                    breed = state.currentBreed,
-                    catRef = state.currentBreedCatRef,
-                    onItemClicked = {
-                        onEvent(BreedScreenEvent.GetBreed(it))
-                    }
+                    state = state,
+                    onItemClicked = { onEvent(BreedScreenEvent.GetBreed(it)) }
                 )
             } else {
                 BreedList(
-                    breeds = state.breeds,
+                    state = state,
                     onItemClicked = {
                         onEvent(BreedScreenEvent.GetBreed(it))
                         navController.navigate(Screen.BreedDetails.route)
                     },
-                    contentPadding = contentPadding,
-                    modifier = modifier.padding(
-                        start = dimensionResource(R.dimen.padding_medium),
-                        end = dimensionResource(R.dimen.padding_medium),
-                    )
+                    modifier = modifier.padding(horizontal = 16.dp)
                 )
             }
         }
@@ -91,15 +86,23 @@ fun BreedScreen(
 
 @Composable
 fun BreedList(
+    state: BreedScreenState,
+    onItemClicked: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val breeds = state.breeds
+    BreedList(breeds = breeds, onItemClicked = onItemClicked, modifier = modifier)
+}
+
+@Composable
+fun BreedList(
     breeds: List<Breed>,
     onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items = breeds, key = { it.id }) {
             BreedCard(breed = it, onItemClicked = onItemClicked)
@@ -130,12 +133,12 @@ fun BreedCard(
             ) {
                 Text(
                     text = breed.name,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                    modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
                     text = breed.id,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                    modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
@@ -144,21 +147,27 @@ fun BreedCard(
 }
 
 @Composable
+fun BreedDetailsRoute(
+    viewModel: BreedViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val breed = state.currentBreed
+    val catRef = state.currentBreedCatRef
+
+    BreedDetails(breed = breed, catRef = catRef, modifier = modifier)
+}
+
+@Composable
 fun BreedDetails(
     breed: Breed?,
     catRef: Cat?,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     Card(
         modifier = modifier
             .fillMaxSize()
-            .padding(
-                top = contentPadding.calculateTopPadding(),
-                bottom = contentPadding.calculateBottomPadding(),
-                start = 16.dp,
-                end = 16.dp
-            )
+            .padding(horizontal = 16.dp)
             .verticalScroll(state = rememberScrollState()),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
@@ -233,6 +242,23 @@ fun BreedDetails(
 
 @Composable
 fun BreedListDetails(
+    state: BreedScreenState,
+    onItemClicked: (String) -> Unit,
+) {
+    val breeds = state.breeds
+    val breed = state.currentBreed
+    val catRef = state.currentBreedCatRef
+
+    BreedListDetails(
+        breeds = breeds,
+        breed = breed,
+        catRef = catRef,
+        onItemClicked = onItemClicked
+    )
+}
+
+@Composable
+fun BreedListDetails(
     breeds: List<Breed>,
     breed: Breed?,
     catRef: Cat?,
@@ -244,7 +270,11 @@ fun BreedListDetails(
             onItemClicked = onItemClicked,
             modifier = Modifier.weight(1f)
         )
-        BreedDetails(breed = breed, catRef = catRef, modifier = Modifier.weight(1f))
+        BreedDetails(
+            breed = breed,
+            catRef = catRef,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -304,10 +334,31 @@ fun BinaryBreedData(title: String, value: Int?) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, apiLevel = 33)
+@Composable
+fun BreedListPreview() {
+    CatalogTheme {
+        BreedList(breeds = breeds, onItemClicked = {})
+    }
+}
+
+@Preview(showBackground = true, apiLevel = 33)
 @Composable
 fun BreedDetailsPreview() {
     CatalogTheme {
-        BreedDetails(breed = fakeBreeds[0], null)
+        BreedDetails(breed = breeds[0], catRef = null)
+    }
+}
+
+@Preview(showBackground = true, apiLevel = 33, device = Devices.TABLET)
+@Composable
+fun BreedListDetailsPreview() {
+    CatalogTheme {
+        BreedListDetails(
+            breeds = breeds,
+            breed = breeds[0],
+            catRef = cat,
+            onItemClicked = {}
+        )
     }
 }

@@ -23,52 +23,70 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
+import com.aurelioklv.catalog.data.fake.FakeDataSource
 import com.aurelioklv.catalog.data.model.Cat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.common.getColorFromHashCode
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
 
 @Composable
-fun HomeScreen(
-    state: HomeScreenState,
-    onEvent: (HomeScreenEvent) -> Unit,
+fun HomeScreenRoute(
+    viewModel: HomeViewModel,
     modifier: Modifier = Modifier,
-    isExpandedWindowSize: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    isExpandedWidthSize: Boolean = false,
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val onEvent = viewModel::onEvent
+
     when {
         state.isLoading -> LoadingScreen()
         state.isError -> ErrorScreen(retryAction = { onEvent(HomeScreenEvent.RefreshImage) })
 
         else -> {
             CatPhotoList(
-                cats = state.cats,
-                gridColumn = state.gridColumn,
+                state = state,
                 onClick = { onEvent(HomeScreenEvent.SaveCatImage(it)) },
-                isExpandedWindowSize = isExpandedWindowSize,
-                contentPadding = contentPadding,
-                modifier = modifier.padding(
-                    start = dimensionResource(R.dimen.padding_medium),
-                    end = dimensionResource(R.dimen.padding_medium),
-                )
+                isExpandedWindowSize = isExpandedWidthSize,
+                modifier = modifier.padding(horizontal = 16.dp)
             )
         }
     }
+}
+
+@Composable
+fun CatPhotoList(
+    state: HomeScreenState,
+    onClick: (Cat) -> Unit,
+    isExpandedWindowSize: Boolean,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    val cats = state.cats
+    val gridColumn = state.gridColumn
+    CatPhotoList(
+        cats = cats,
+        gridColumn = gridColumn,
+        onClick = onClick,
+        isExpandedWindowSize = isExpandedWindowSize,
+        modifier = modifier,
+        contentPadding = contentPadding
+    )
 }
 
 @Composable
@@ -154,15 +172,8 @@ fun LoadingScreen() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun CatCardPreview() {
-    val mockData = Cat(
-        id = "qaZwsX23",
-        imageUrl = "",
-        imageWidth = 800,
-        imageHeight = 600,
-        breeds = emptyList()
-    )
     CatCard(
-        cat = mockData,
+        cat = FakeDataSource.cat,
         onClick = {}
     )
 }

@@ -72,7 +72,9 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
                 isError = true
                 emptyList()
             }
-            getBreedById(breeds.first().id)
+            if (breeds.isNotEmpty()) {
+                getBreedById(breeds.first().id)
+            }
             _state.update {
                 it.copy(
                     breeds = breeds,

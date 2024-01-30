@@ -40,6 +40,12 @@ interface CatApi {
         @Query("sub_id") subId: String,
     ): List<Favourite>
 
+    @GET("favourites/{favouriteId}")
+    suspend fun getFavouriteById(
+        @Header("x-api-key") apiKey: String = API_KEY,
+        @Path("favouriteId") favId: Long
+    ): Favourite
+
     @POST("favourites")
     suspend fun addFavourite(
         @Header("x-api-key") apiKey: String = API_KEY,

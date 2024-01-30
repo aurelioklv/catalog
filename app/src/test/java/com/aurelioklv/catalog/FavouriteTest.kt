@@ -10,7 +10,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -84,6 +86,59 @@ class FavouriteTest {
         }
 
         assertTrue(favs.isEmpty())
+    }
+
+    @Test
+    fun getFavouriteById_favouriteExist() = runBlocking {
+        favouriteCandidates.add(realImageIds[1])
+
+        favouriteCandidates.forEach {
+            val request = AddFavouriteRequest(imageId = it, subId = userId)
+            try {
+                val response = catApi.addFavourite(request = request)
+                assertNotNull(response)
+            } catch (e: HttpException) {
+                println("Catch e: $e")
+            }
+        }
+
+        val favs = catApi.getFavourites(subId = userId)
+        val favId = favs.first().id
+
+        val fav = catApi.getFavouriteById(favId = favId)
+
+        assertNotNull(favs)
+        assertNotNull(fav)
+        assertEquals(favs.first(), fav)
+    }
+
+    @Test
+    fun getFavouriteOfNonExistingId_favouriteNotExist() = runBlocking {
+        favouriteCandidates.add(realImageIds[1])
+
+        favouriteCandidates.forEach {
+            val request = AddFavouriteRequest(imageId = it, subId = userId)
+            try {
+                val response = catApi.addFavourite(request = request)
+                assertNotNull(response)
+            } catch (e: HttpException) {
+                println("Catch e: $e")
+            }
+        }
+
+        val favs = catApi.getFavourites(subId = userId)
+        val favId = -favs.first().id
+
+        val fav = try {
+            catApi.getFavouriteById(favId = favId)
+        } catch (e: HttpException) {
+            println("Catch getFavouriteById e: $e")
+            null
+        }
+
+        assertNotNull(favs)
+        assertNull(fav)
+        assertNotEquals(favs.first(), fav)
     }
 
     @Test

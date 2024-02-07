@@ -35,7 +35,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             is BreedScreenEvent.ShowBreedDetails -> {
                 _state.update {
                     it.copy(
-                        isShowingDetails = true, currentBreed = event.breed
+                        isShowingDetails = true, currentNetworkBreed = event.networkBreed
                     )
                 }
             }
@@ -47,8 +47,8 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             is BreedScreenEvent.GetBreed -> {
                 _state.update {
                     it.copy(
-                        currentBreed = null,
-                        currentBreedCatRef = null
+                        currentNetworkBreed = null,
+                        currentBreedNetworkCatRef = null
                     )
                 }
                 viewModelScope.launch {
@@ -62,7 +62,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
         viewModelScope.launch {
             var isError = false
             val breeds = try {
-                catRepository.getBreeds()
+                catRepository.getNetworkBreeds()
             } catch (e: IOException) {
                 e.printStackTrace()
                 isError = true
@@ -77,7 +77,7 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             }
             _state.update {
                 it.copy(
-                    breeds = breeds,
+                    networkBreeds = breeds,
                     isError = isError,
                     isLoading = false
                 )
@@ -112,8 +112,8 @@ class BreedViewModel @Inject constructor(private val catRepository: CatRepositor
             }
             _state.update {
                 it.copy(
-                    currentBreed = breed,
-                    currentBreedCatRef = cat,
+                    currentNetworkBreed = breed,
+                    currentBreedNetworkCatRef = cat,
                     isError = isError,
                     isLoading = false
                 )

@@ -4,7 +4,7 @@ import android.content.Context
 import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
-import com.aurelioklv.catalog.data.api.CatApi
+import com.aurelioklv.catalog.data.network.CatApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides

@@ -1,14 +1,14 @@
-package com.aurelioklv.catalog.data.api
+package com.aurelioklv.catalog.data.network
 
-import com.aurelioklv.catalog.data.api.ApiConstants.API_KEY
-import com.aurelioklv.catalog.data.api.ApiConstants.DEFAULT_HAS_BREEDS
-import com.aurelioklv.catalog.data.api.ApiConstants.DEFAULT_LIMIT
-import com.aurelioklv.catalog.data.model.AddFavouriteRequest
-import com.aurelioklv.catalog.data.model.AddFavouriteResponse
-import com.aurelioklv.catalog.data.model.Breed
-import com.aurelioklv.catalog.data.model.Cat
-import com.aurelioklv.catalog.data.model.Favourite
-import com.aurelioklv.catalog.data.model.RemoveFavouriteResponse
+import com.aurelioklv.catalog.data.network.ApiConstants.API_KEY
+import com.aurelioklv.catalog.data.network.ApiConstants.DEFAULT_HAS_BREEDS
+import com.aurelioklv.catalog.data.network.ApiConstants.DEFAULT_LIMIT
+import com.aurelioklv.catalog.data.network.model.AddFavouriteRequest
+import com.aurelioklv.catalog.data.network.model.AddFavouriteResponse
+import com.aurelioklv.catalog.data.network.model.Favourite
+import com.aurelioklv.catalog.data.network.model.NetworkBreed
+import com.aurelioklv.catalog.data.network.model.NetworkCat
+import com.aurelioklv.catalog.data.network.model.RemoveFavouriteResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -23,16 +23,16 @@ interface CatApi {
         @Header("x-api-key") apiKey: String = API_KEY,
         @Query("limit") limit: Int = DEFAULT_LIMIT,
         @Query("has_breeds") hasBreeds: Int = DEFAULT_HAS_BREEDS
-    ): List<Cat>
+    ): List<NetworkCat>
 
     @GET("images/{catId}")
-    suspend fun getCatById(@Path("catId") catId: String): Cat
+    suspend fun getCatById(@Path("catId") catId: String): NetworkCat
 
     @GET("breeds")
-    suspend fun getBreeds(): List<Breed>
+    suspend fun getBreeds(): List<NetworkBreed>
 
     @GET("breeds/{breedId}")
-    suspend fun getBreedById(@Path("breedId") breedId: String): Breed
+    suspend fun getBreedById(@Path("breedId") breedId: String): NetworkBreed
 
     @GET("favourites")
     suspend fun getFavourites(

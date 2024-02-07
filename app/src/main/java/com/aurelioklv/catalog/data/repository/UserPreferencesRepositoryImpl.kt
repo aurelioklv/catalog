@@ -2,8 +2,8 @@ package com.aurelioklv.catalog.data.repository
 
 import android.util.Log
 import androidx.datastore.core.DataStore
-import com.aurelioklv.catalog.data.model.DarkThemeConfig
-import com.aurelioklv.catalog.data.model.UserPreferences
+import com.aurelioklv.catalog.data.local.preferences.DarkThemeConfig
+import com.aurelioklv.catalog.data.local.preferences.UserPreferences
 import com.aurelioklv.catalog.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

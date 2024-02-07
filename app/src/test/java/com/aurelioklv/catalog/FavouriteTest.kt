@@ -1,7 +1,7 @@
 package com.aurelioklv.catalog
 
-import com.aurelioklv.catalog.data.api.CatApi
-import com.aurelioklv.catalog.data.model.AddFavouriteRequest
+import com.aurelioklv.catalog.data.network.CatApi
+import com.aurelioklv.catalog.data.network.model.AddFavouriteRequest
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString

@@ -1,11 +1,11 @@
-package com.aurelioklv.catalog.data.model
+package com.aurelioklv.catalog.data.network.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Cat(
-    val breeds: List<Breed>? = null,
+data class NetworkCat(
+    @SerialName("breeds") val networkBreeds: List<NetworkBreed>? = null,
     val categories: List<Category>? = null,
     val id: String,
 

@@ -1,4 +1,4 @@
-package com.aurelioklv.catalog.data.api
+package com.aurelioklv.catalog.data.network
 
 import com.aurelioklv.catalog.BuildConfig
 

@@ -73,6 +73,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
+    implementation("androidx.room:room-runtime:$2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
     implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0-rc01")
@@ -89,6 +93,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    implementation("androidx.test:core-ktx:1.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

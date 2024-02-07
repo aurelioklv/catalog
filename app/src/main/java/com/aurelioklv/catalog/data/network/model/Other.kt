@@ -1,4 +1,4 @@
-package com.aurelioklv.catalog.data.model
+package com.aurelioklv.catalog.data.network.model
 
 import kotlinx.serialization.Serializable
 

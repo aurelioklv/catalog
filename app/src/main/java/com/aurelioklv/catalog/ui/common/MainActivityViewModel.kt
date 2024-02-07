@@ -2,7 +2,7 @@ package com.aurelioklv.catalog.ui.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aurelioklv.catalog.data.model.UserData
+import com.aurelioklv.catalog.data.local.preferences.UserData
 import com.aurelioklv.catalog.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

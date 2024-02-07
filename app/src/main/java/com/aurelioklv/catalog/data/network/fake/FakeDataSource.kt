@@ -1,11 +1,13 @@
-package com.aurelioklv.catalog.data.fake
+package com.aurelioklv.catalog.data.network.fake
 
-import com.aurelioklv.catalog.data.model.Breed
-import com.aurelioklv.catalog.data.model.Cat
-import com.aurelioklv.catalog.data.model.Weight
+import com.aurelioklv.catalog.data.mapper.asEntity
+import com.aurelioklv.catalog.data.mapper.asExternalModel
+import com.aurelioklv.catalog.data.network.model.NetworkBreed
+import com.aurelioklv.catalog.data.network.model.NetworkCat
+import com.aurelioklv.catalog.data.network.model.Weight
 
 object FakeDataSource {
-    val breed = Breed(
+    val networkBreed = NetworkBreed(
         weight = Weight(
             imperial = "7  -  10",
             metric = "3 - 5"
@@ -48,13 +50,15 @@ object FakeDataSource {
         referenceImageId = "0XYvRd7oD"
     )
 
-    val cat = Cat(
-        breeds = listOf(breed),
+    val networkCat = NetworkCat(
+        networkBreeds = listOf(networkBreed),
         id = "0XYvRd7oD",
         imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
         imageWidth = 1204,
         imageHeight = 1445
     )
 
-    val breeds: List<Breed> = MutableList(5) { breed.copy(id = "${breed.id}-$it") }
+    val networkBreeds: List<NetworkBreed> =
+        MutableList(5) { networkBreed.copy(id = "${networkBreed.id}-$it") }
+    val breeds = networkBreeds.map { it.asEntity().asExternalModel() }
 }

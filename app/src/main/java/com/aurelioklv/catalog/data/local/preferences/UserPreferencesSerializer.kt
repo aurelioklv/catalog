@@ -1,4 +1,4 @@
-package com.aurelioklv.catalog.data.model
+package com.aurelioklv.catalog.data.local.preferences
 
 import android.util.Log
 import androidx.datastore.core.CorruptionException

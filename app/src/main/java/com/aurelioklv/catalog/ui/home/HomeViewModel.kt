@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
-import com.aurelioklv.catalog.data.model.Cat
+import com.aurelioklv.catalog.data.network.model.NetworkCat
 import com.aurelioklv.catalog.domain.repository.CatRepository
 import com.aurelioklv.catalog.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,12 +76,12 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeScreenEvent.SaveCatImage -> {
-                downloadImage(event.cat)
+                downloadImage(event.networkCat)
             }
 
             is HomeScreenEvent.ShowCatDetails -> {
                 _state.update {
-                    it.copy(isShowingDetails = true, currentCat = event.cat)
+                    it.copy(isShowingDetails = true, currentNetworkCat = event.networkCat)
                 }
             }
         }
@@ -107,7 +107,7 @@ class HomeViewModel @Inject constructor(
             }
             _state.update {
                 it.copy(
-                    cats = cats,
+                    networkCats = cats,
                     isError = isError,
                     isLoading = false
                 )
@@ -115,19 +115,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun downloadImage(cat: Cat) {
+    private fun downloadImage(networkCat: NetworkCat) {
         viewModelScope.launch(Dispatchers.IO) {
             val request = ImageRequest.Builder(application)
-                .data(cat.imageUrl)
+                .data(networkCat.imageUrl)
                 .build()
 
             val result = imageLoader.execute(request).drawable?.toBitmap()
-            val breedName = when (cat.breeds?.isNotEmpty()) {
-                true -> cat.breeds.first().name.replace(" ", "_")
+            val breedName = when (networkCat.networkBreeds?.isNotEmpty()) {
+                true -> networkCat.networkBreeds.first().name.replace(" ", "_")
                 else -> "NA"
             }
 
-            val imageName = "${breedName}_(${cat.id})"
+            val imageName = "${breedName}_(${networkCat.id})"
             result?.let {
                 Log.i("DOWNLOAD", "Bitmap: $it")
                 saveImageToFile(it, imageName)

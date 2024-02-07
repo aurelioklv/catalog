@@ -39,8 +39,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
-import com.aurelioklv.catalog.data.fake.FakeDataSource
-import com.aurelioklv.catalog.data.model.Cat
+import com.aurelioklv.catalog.data.network.fake.FakeDataSource
+import com.aurelioklv.catalog.data.network.model.NetworkCat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.common.getColorFromHashCode
 import com.aurelioklv.catalog.ui.theme.CatalogTheme
@@ -72,15 +72,15 @@ fun HomeScreenRoute(
 @Composable
 fun CatPhotoList(
     state: HomeScreenState,
-    onClick: (Cat) -> Unit,
+    onClick: (NetworkCat) -> Unit,
     isExpandedWindowSize: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    val cats = state.cats
+    val cats = state.networkCats
     val gridColumn = state.gridColumn
     CatPhotoList(
-        cats = cats,
+        networkCats = cats,
         gridColumn = gridColumn,
         onClick = onClick,
         isExpandedWindowSize = isExpandedWindowSize,
@@ -91,9 +91,9 @@ fun CatPhotoList(
 
 @Composable
 fun CatPhotoList(
-    cats: List<Cat>,
+    networkCats: List<NetworkCat>,
     gridColumn: Int,
-    onClick: (Cat) -> Unit,
+    onClick: (NetworkCat) -> Unit,
     isExpandedWindowSize: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -107,15 +107,15 @@ fun CatPhotoList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
     ) {
-        items(items = cats, key = { it.id }) {
-            CatCard(cat = it, onClick = onClick)
+        items(items = networkCats, key = { it.id }) {
+            CatCard(networkCat = it, onClick = onClick)
         }
     }
 }
 
 @Composable
-fun CatCard(cat: Cat, onClick: (Cat) -> Unit) {
-    val breeds = cat.breeds
+fun CatCard(networkCat: NetworkCat, onClick: (NetworkCat) -> Unit) {
+    val breeds = networkCat.networkBreeds
     Card(
         border = BorderStroke(
             width = 2.dp,
@@ -129,14 +129,17 @@ fun CatCard(cat: Cat, onClick: (Cat) -> Unit) {
                 modifier = Modifier
                     .aspectRatio(1f),
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(cat.imageUrl)
+                    .data(networkCat.imageUrl)
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.walking_cat),
                 error = painterResource(R.drawable.offline)
             )
-            IconButton(onClick = { onClick(cat) }, modifier = Modifier.align(Alignment.TopEnd)) {
+            IconButton(
+                onClick = { onClick(networkCat) },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.FileDownload,
                     contentDescription = stringResource(R.string.download_image)
@@ -173,7 +176,7 @@ fun LoadingScreen() {
 @Composable
 fun CatCardPreview() {
     CatCard(
-        cat = FakeDataSource.cat,
+        networkCat = FakeDataSource.networkCat,
         onClick = {}
     )
 }

@@ -5,7 +5,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.aurelioklv.catalog.data.model.DarkThemeConfig
+import com.aurelioklv.catalog.data.local.preferences.DarkThemeConfig
 
 
 @Composable

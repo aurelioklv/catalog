@@ -38,10 +38,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.aurelioklv.catalog.R
-import com.aurelioklv.catalog.data.fake.FakeDataSource.breeds
-import com.aurelioklv.catalog.data.fake.FakeDataSource.cat
-import com.aurelioklv.catalog.data.model.Breed
-import com.aurelioklv.catalog.data.model.Cat
+import com.aurelioklv.catalog.data.network.fake.FakeDataSource.networkBreeds
+import com.aurelioklv.catalog.data.network.fake.FakeDataSource.networkCat
+import com.aurelioklv.catalog.data.network.model.NetworkBreed
+import com.aurelioklv.catalog.data.network.model.NetworkCat
 import com.aurelioklv.catalog.ui.common.ErrorScreen
 import com.aurelioklv.catalog.ui.common.RatingBullet
 import com.aurelioklv.catalog.ui.common.getColorFromHashCode
@@ -90,13 +90,13 @@ fun BreedList(
     onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val breeds = state.breeds
-    BreedList(breeds = breeds, onItemClicked = onItemClicked, modifier = modifier)
+    val breeds = state.networkBreeds
+    BreedList(networkBreeds = breeds, onItemClicked = onItemClicked, modifier = modifier)
 }
 
 @Composable
 fun BreedList(
-    breeds: List<Breed>,
+    networkBreeds: List<NetworkBreed>,
     onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -104,25 +104,25 @@ fun BreedList(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(items = breeds, key = { it.id }) {
-            BreedCard(breed = it, onItemClicked = onItemClicked)
+        items(items = networkBreeds, key = { it.id }) {
+            BreedCard(networkBreed = it, onItemClicked = onItemClicked)
         }
     }
 }
 
 @Composable
 fun BreedCard(
-    breed: Breed,
+    networkBreed: NetworkBreed,
     onItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(width = 2.dp, color = getColorFromHashCode(breed.hashCode())),
+        border = BorderStroke(width = 2.dp, color = getColorFromHashCode(networkBreed.hashCode())),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = modifier.clickable {
-            onItemClicked(breed.id)
+            onItemClicked(networkBreed.id)
         }
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -132,12 +132,12 @@ fun BreedCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = breed.name,
+                    text = networkBreed.name,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = breed.id,
+                    text = networkBreed.id,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.labelMedium,
                 )
@@ -152,16 +152,16 @@ fun BreedDetailsRoute(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val breed = state.currentBreed
-    val catRef = state.currentBreedCatRef
+    val breed = state.currentNetworkBreed
+    val catRef = state.currentBreedNetworkCatRef
 
-    BreedDetails(breed = breed, catRef = catRef, modifier = modifier)
+    BreedDetails(networkBreed = breed, networkCatRef = catRef, modifier = modifier)
 }
 
 @Composable
 fun BreedDetails(
-    breed: Breed?,
-    catRef: Cat?,
+    networkBreed: NetworkBreed?,
+    networkCatRef: NetworkCat?,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -175,7 +175,7 @@ fun BreedDetails(
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data(catRef?.imageUrl)
+                .data(networkCatRef?.imageUrl)
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
@@ -187,7 +187,7 @@ fun BreedDetails(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            breed?.let {
+            networkBreed?.let {
                 it.apply {
                     StringBreedData(title = "Breed", value = name)
                     StringBreedData(title = "Description", value = description)
@@ -245,34 +245,34 @@ fun BreedListDetails(
     state: BreedScreenState,
     onItemClicked: (String) -> Unit,
 ) {
-    val breeds = state.breeds
-    val breed = state.currentBreed
-    val catRef = state.currentBreedCatRef
+    val breeds = state.networkBreeds
+    val breed = state.currentNetworkBreed
+    val catRef = state.currentBreedNetworkCatRef
 
     BreedListDetails(
-        breeds = breeds,
-        breed = breed,
-        catRef = catRef,
+        networkBreeds = breeds,
+        networkBreed = breed,
+        networkCatRef = catRef,
         onItemClicked = onItemClicked
     )
 }
 
 @Composable
 fun BreedListDetails(
-    breeds: List<Breed>,
-    breed: Breed?,
-    catRef: Cat?,
+    networkBreeds: List<NetworkBreed>,
+    networkBreed: NetworkBreed?,
+    networkCatRef: NetworkCat?,
     onItemClicked: (String) -> Unit,
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
         BreedList(
-            breeds = breeds,
+            networkBreeds = networkBreeds,
             onItemClicked = onItemClicked,
             modifier = Modifier.weight(1f)
         )
         BreedDetails(
-            breed = breed,
-            catRef = catRef,
+            networkBreed = networkBreed,
+            networkCatRef = networkCatRef,
             modifier = Modifier.weight(1f)
         )
     }
@@ -338,7 +338,7 @@ fun BinaryBreedData(title: String, value: Int?) {
 @Composable
 fun BreedListPreview() {
     CatalogTheme {
-        BreedList(breeds = breeds, onItemClicked = {})
+        BreedList(networkBreeds = networkBreeds, onItemClicked = {})
     }
 }
 
@@ -346,7 +346,7 @@ fun BreedListPreview() {
 @Composable
 fun BreedDetailsPreview() {
     CatalogTheme {
-        BreedDetails(breed = breeds[0], catRef = null)
+        BreedDetails(networkBreed = networkBreeds[0], networkCatRef = null)
     }
 }
 
@@ -355,9 +355,9 @@ fun BreedDetailsPreview() {
 fun BreedListDetailsPreview() {
     CatalogTheme {
         BreedListDetails(
-            breeds = breeds,
-            breed = breeds[0],
-            catRef = cat,
+            networkBreeds = networkBreeds,
+            networkBreed = networkBreeds[0],
+            networkCatRef = networkCat,
             onItemClicked = {}
         )
     }

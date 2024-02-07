@@ -2,7 +2,7 @@ package com.aurelioklv.catalog.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aurelioklv.catalog.data.model.DarkThemeConfig
+import com.aurelioklv.catalog.data.local.preferences.DarkThemeConfig
 import com.aurelioklv.catalog.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

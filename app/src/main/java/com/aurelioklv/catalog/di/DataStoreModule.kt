@@ -6,8 +6,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.aurelioklv.catalog.data.model.UserPreferences
-import com.aurelioklv.catalog.data.model.UserPreferencesSerializer
+import com.aurelioklv.catalog.data.local.preferences.UserPreferences
+import com.aurelioklv.catalog.data.local.preferences.UserPreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
